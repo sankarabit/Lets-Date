@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Une petite question...</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blush: #FFF1F5;
+    --blush-deep: #FFE1EA;
+    --rose: #FF6E93;
+    --rose-deep: #E23F68;
+    --plum: #4A1B34;
+    --plum-soft: #7A3D5A;
+    --gold: #F2C6C2;
+    --card: #FFFDFE;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    font-family:'Quicksand',sans-serif;
+    background: radial-gradient(circle at 20% 20%, var(--blush-deep), var(--blush) 60%);
+    color:var(--plum);
+    overflow-x:hidden;
+  }
+  #hearts{
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+  }
+  .heart{
+    position:absolute; bottom:-10%; opacity:0.35;
+    animation: float linear infinite;
+    color: var(--rose);
+  }
+  @keyframes float{
+    0%{ transform:translateY(0) rotate(0deg); opacity:0;}
+    10%{opacity:0.35;}
+    90%{opacity:0.35;}
+    100%{ transform:translateY(-115vh) rotate(25deg); opacity:0;}
+  }
+  main{
+    position:relative; z-index:1;
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .card{
+    background: var(--card);
+    border-radius: 28px;
+    padding: 48px 40px;
+    max-width: 460px;
+    width:100%;
+    box-shadow: 0 20px 60px rgba(226,63,104,0.15), 0 2px 8px rgba(226,63,104,0.08);
+    text-align:center;
+    position:relative;
+    border: 1px solid var(--blush-deep);
+  }
+  .eyebrow{
+    font-size:13px;
+    letter-spacing:0.02em;
+    color: var(--rose-deep);
+    margin:0 0 6px;
+    font-weight:600;
+  }
+  h1{
+    font-family:'Playfair Display', serif;
+    font-weight:700;
+    font-size:30px;
+    line-height:1.25;
+    margin: 0 0 8px;
+    color: var(--plum);
+  }
+  p.sub{
+    font-size:15px;
+    color: var(--plum-soft);
+    margin: 0 0 32px;
+    line-height:1.5;
+  }
+  .step{ display:none; }
+  .step.active{ display:block; animation: appear 0.5s ease; }
+  @keyframes appear{
+    from{ opacity:0; transform:translateY(10px);}
+    to{ opacity:1; transform:translateY(0);}
+  }
+
+  /* Step 1 buttons */
+  .choice-row{
+    position:relative;
+    height:170px;
+    margin-top: 8px;
+  }
+  .btn{
+    border:none;
+    border-radius: 999px;
+    padding: 16px 38px;
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    cursor:pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn:active{ transform: scale(0.96); }
+  .btn-yes{
+    background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+    color:#fff;
+    box-shadow: 0 10px 24px rgba(226,63,104,0.35);
+    position:relative;
+  }
+  .btn-yes:hover{ box-shadow: 0 14px 30px rgba(226,63,104,0.45); transform: translateY(-2px); }
+  .btn-no{
+    background: var(--blush-deep);
+    color: var(--plum-soft);
+    position:absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: left 0.18s ease, top 0.18s ease, transform 0.18s ease;
+  }
+  .stack{
+    display:flex; justify-content:center; gap:16px;
+  }
+
+  /* Forms */
+  fieldset{ border:none; padding:0; margin:0 0 22px; text-align:left; }
+  legend{
+    font-weight:600; font-size:14px; color:var(--rose-deep);
+    margin-bottom:10px;
+  }
+  label.field-label{
+    display:block; font-size:13px; font-weight:600; color:var(--plum-soft);
+    margin: 0 0 6px; text-align:left;
+  }
+  input[type=date], input[type=time], input[type=text]{
+    width:100%;
+    padding: 13px 16px;
+    border-radius: 14px;
+    border: 1.5px solid var(--blush-deep);
+    background: var(--blush);
+    font-family:'Quicksand',sans-serif;
+    font-size:15px;
+    color: var(--plum);
+    margin-bottom:18px;
+    outline:none;
+    transition: border-color 0.15s ease;
+  }
+  input:focus{ border-color: var(--rose); }
+
+  .pill-group{
+    display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px;
+  }
+  .pill{
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1.5px solid var(--blush-deep);
+    background: var(--blush);
+    font-size:14px;
+    font-weight:600;
+    color: var(--plum-soft);
+    cursor:pointer;
+    transition: all 0.15s ease;
+  }
+  .pill.selected{
+    background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+    color:#fff;
+    border-color: transparent;
+  }
+
+  .btn-primary{
+    width:100%;
+    background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+    color:#fff;
+    border:none;
+    border-radius: 999px;
+    padding: 16px 20px;
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    cursor:pointer;
+    box-shadow: 0 10px 24px rgba(226,63,104,0.3);
+    transition: transform 0.15s ease;
+  }
+  .btn-primary:disabled{
+    opacity:0.45; cursor:not-allowed; box-shadow:none;
+  }
+  .btn-primary:not(:disabled):hover{ transform: translateY(-2px); }
+
+  .progress{
+    display:flex; gap:6px; justify-content:center; margin-bottom:28px;
+  }
+  .dot{
+    width:8px; height:8px; border-radius:50%;
+    background: var(--blush-deep);
+    transition: background 0.2s ease, width 0.2s ease;
+  }
+  .dot.done{ background: var(--rose); }
+  .dot.now{ background: var(--rose-deep); width:20px; border-radius:4px; }
+
+  /* Final step */
+  .final-emoji{
+    font-size:56px;
+    margin-bottom:12px;
+    animation: pop 0.6s ease;
+  }
+  @keyframes pop{
+    0%{ transform:scale(0.4); opacity:0;}
+    60%{ transform:scale(1.1);}
+    100%{ transform:scale(1); opacity:1;}
+  }
+  .recap{
+    background: var(--blush);
+    border-radius:16px;
+    padding: 18px 20px;
+    margin: 20px 0 4px;
+    text-align:left;
+    font-size:14px;
+    color: var(--plum-soft);
+    line-height:1.9;
+  }
+  .recap b{ color: var(--plum); }
+</style>
+</head>
+<body>
+
+<div id="hearts"></div>
+
+<main>
+  <div class="card">
+
+    <!-- STEP 1 -->
+    <section class="step active" id="step-1">
+      <p class="eyebrow">une question importante</p>
+      <h1>Veux-tu sortir avec moi&nbsp;?</h1>
+      <p class="sub">Prends ton temps... enfin, pas trop.</p>
+      <div class="choice-row">
+        <div class="stack">
+          <button class="btn btn-yes" id="btn-yes">Oui, avec plaisir</button>
+          <button class="btn btn-no" id="btn-no">Non</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step" id="step-2">
+      <div class="progress">
+        <div class="dot done"></div><div class="dot now"></div><div class="dot"></div>
+      </div>
+      <p class="eyebrow">parfait choix</p>
+      <h1>Quand es-tu libre&nbsp;?</h1>
+      <p class="sub">Choisis un jour et une heure qui t'arrangent.</p>
+      <form id="form-date">
+        <label class="field-label" for="date">Date</label>
+        <input type="date" id="date" required>
+        <label class="field-label" for="time">Heure</label>
+        <input type="time" id="time" required>
+        <button type="submit" class="btn-primary">Continuer</button>
+      </form>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step" id="step-3">
+      <div class="progress">
+        <div class="dot done"></div><div class="dot done"></div><div class="dot now"></div>
+      </div>
+      <p class="eyebrow">presque fini</p>
+      <h1>On mange quoi&nbsp;?</h1>
+      <p class="sub">Choisis une envie, puis le lieu.</p>
+      <form id="form-food">
+        <fieldset>
+          <legend>Type de cuisine</legend>
+          <div class="pill-group" id="food-pills">
+            <div class="pill" data-value="Africaine">Africaine</div>
+            <div class="pill" data-value="Italienne">Italienne</div>
+            <div class="pill" data-value="Asiatique">Asiatique</div>
+            <div class="pill" data-value="Fast-food">Fast-food</div>
+            <div class="pill" data-value="Fruits de mer">Fruits de mer</div>
+            <div class="pill" data-value="Sucré">Sucré / Dessert</div>
+          </div>
+        </fieldset>
+        <label class="field-label" for="restaurant">Restaurant (ou une idée de lieu)</label>
+        <input type="text" id="restaurant" placeholder="ex : Chez Maman Benin, Cotonou" required>
+        <button type="submit" class="btn-primary" id="submit-food" disabled>Valider</button>
+      </form>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step" id="step-4">
+      <div class="final-emoji">💌</div>
+      <h1>C'est noté !</h1>
+      <p class="sub">Envoie-lui ce lien pour qu'il voie directement ta réponse.</p>
+      <div class="recap" id="recap"></div>
+      <div class="stack" style="margin-top:24px; flex-direction:column; gap:12px;">
+        <a class="btn-primary" id="send-whatsapp" href="#" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block;">Envoyer le lien par WhatsApp</a>
+        <a class="btn-primary" id="send-email" href="#" style="text-decoration:none; display:inline-block; background:linear-gradient(135deg, var(--plum-soft), var(--plum));">Envoyer le lien par email</a>
+        <button class="btn-primary" id="copy-link" type="button" style="background: var(--blush-deep); color:var(--plum-soft); box-shadow:none;">Copier le lien</button>
+      </div>
+    </section>
+
+    <!-- STEP 5: reveal (opened via shared link) -->
+    <section class="step" id="step-5">
+      <div class="final-emoji">💖</div>
+      <p class="eyebrow">elle a répondu</p>
+      <h1>Elle a dit oui !</h1>
+      <p class="sub">Voici ce qu'elle a choisi.</p>
+      <div class="recap" id="recap-reveal"></div>
+    </section>
+
+  </div>
+</main>
+
+<script>
+  // If this page was opened via a shared "reveal" link, show her answers directly
+  (function(){
+    const p = new URLSearchParams(location.search);
+    if(p.has('d') && p.has('t') && p.has('f') && p.has('r')){
+      document.getElementById('recap-reveal').innerHTML =
+        '<div>📅 <b>Date</b> : ' + p.get('d') + '</div>' +
+        '<div>🕐 <b>Heure</b> : ' + p.get('t') + '</div>' +
+        '<div>🍽️ <b>Cuisine</b> : ' + p.get('f') + '</div>' +
+        '<div>📍 <b>Lieu</b> : ' + p.get('r') + '</div>';
+      document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+      document.getElementById('step-5').classList.add('active');
+    }
+  })();
+
+  // Floating hearts background
+  const heartsContainer = document.getElementById('hearts');
+  const heartChars = ['♥','♡'];
+  for(let i=0;i<16;i++){
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.textContent = heartChars[Math.random()>0.5?0:1];
+    h.style.left = Math.random()*100 + 'vw';
+    h.style.fontSize = (14 + Math.random()*20) + 'px';
+    h.style.animationDuration = (10 + Math.random()*12) + 's';
+    h.style.animationDelay = (Math.random()*10) + 's';
+    heartsContainer.appendChild(h);
+  }
+
+  // Step navigation
+  function goToStep(n){
+    document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+    document.getElementById('step-'+n).classList.add('active');
+  }
+
+  // STEP 1: fleeing "No" button
+  const btnNo = document.getElementById('btn-no');
+  const btnYes = document.getElementById('btn-yes');
+  const choiceRow = document.querySelector('.choice-row');
+
+  function fleeNoButton(){
+    const rowRect = choiceRow.getBoundingClientRect();
+    const btnRect = btnNo.getBoundingClientRect();
+    const maxLeft = rowRect.width - btnRect.width - 8;
+    const maxTop = rowRect.height - btnRect.height - 8;
+    const newLeft = Math.max(8, Math.random()*maxLeft);
+    const newTop = Math.max(8, Math.random()*maxTop);
+    btnNo.style.left = newLeft + 'px';
+    btnNo.style.top = newTop + 'px';
+    btnNo.style.transform = 'none';
+  }
+
+  btnNo.addEventListener('mouseenter', fleeNoButton);
+  btnNo.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    fleeNoButton();
+  }, {passive:false});
+
+  btnYes.addEventListener('click', function(){
+    goToStep(2);
+  });
+
+  // STEP 2: date & time
+  document.getElementById('form-date').addEventListener('submit', function(e){
+    e.preventDefault();
+    goToStep(3);
+  });
+
+  // STEP 3: food pills + restaurant
+  let selectedFood = null;
+  const pills = document.querySelectorAll('#food-pills .pill');
+  const submitFood = document.getElementById('submit-food');
+  const restaurantInput = document.getElementById('restaurant');
+
+  function checkFoodFormValid(){
+    submitFood.disabled = !(selectedFood && restaurantInput.value.trim().length > 0);
+  }
+
+  pills.forEach(p=>{
+    p.addEventListener('click', function(){
+      pills.forEach(x=>x.classList.remove('selected'));
+      p.classList.add('selected');
+      selectedFood = p.dataset.value;
+      checkFoodFormValid();
+    });
+  });
+  restaurantInput.addEventListener('input', checkFoodFormValid);
+
+  document.getElementById('form-food').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    const dateVal = document.getElementById('date').value;
+    const timeVal = document.getElementById('time').value;
+    const restaurantVal = restaurantInput.value.trim();
+
+    let dateDisplay = dateVal;
+    if(dateVal){
+      const d = new Date(dateVal + 'T00:00:00');
+      dateDisplay = d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    }
+
+    document.getElementById('recap').innerHTML =
+      '<div>📅 <b>Date</b> : ' + dateDisplay + '</div>' +
+      '<div>🕐 <b>Heure</b> : ' + timeVal + '</div>' +
+      '<div>🍽️ <b>Cuisine</b> : ' + selectedFood + '</div>' +
+      '<div>📍 <b>Lieu</b> : ' + restaurantVal + '</div>';
+
+    const params = new URLSearchParams();
+    params.set('d', dateDisplay);
+    params.set('t', timeVal);
+    params.set('f', selectedFood);
+    params.set('r', restaurantVal);
+    const shareLink = location.origin + location.pathname + '?' + params.toString();
+
+    const messageText =
+      "Elle a dit OUI 💌 Regarde sa réponse ici : " + shareLink;
+
+    const whatsappNumber = "22951518872";
+    document.getElementById('send-whatsapp').href =
+      "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(messageText);
+
+    document.getElementById('send-email').href =
+      "mailto:teddysegla@gmail.com?subject=" + encodeURIComponent("Elle a dit oui !") +
+      "&body=" + encodeURIComponent(messageText);
+
+    document.getElementById('copy-link').addEventListener('click', function(){
+      navigator.clipboard.writeText(shareLink).then(function(){
+        const btn = document.getElementById('copy-link');
+        const original = btn.textContent;
+        btn.textContent = 'Lien copié !';
+        setTimeout(function(){ btn.textContent = original; }, 1800);
+      }).catch(function(){});
+    });
+
+    goToStep(4);
+  });
+</script>
+
+</body>
+</html>
